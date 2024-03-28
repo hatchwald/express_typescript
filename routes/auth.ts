@@ -39,17 +39,27 @@ router.post("/register", async function (req: Request, res: Response) {
 			}
 		});
 
-		const user = await User.findAll();
-		console.log("All users:", JSON.stringify(user, null, 2));
-		res.status(200).json(email);
+		const user = await User.findAll({ where: { email: email } });
+		if (user.length > 0) {
+			return res.status(400).json({ message: "email already exist" });
+		}
 
-		// bcrypt.hash(password, 10, function (err: any, hash) {
-		// 	if (err) {
-		// 		let error = new Error();
-		// 		error = { ...error, ...err };
-		// 		throw error;
-		// 	}
-		// });
+		bcrypt.hash(password, 10, async function (err: any, hash) {
+			if (err) {
+				let error = new Error();
+				error = { ...error, ...err };
+				throw error;
+			}
+			const userCreate = await User.create({
+				firstName: firstName,
+				lastName: lastName,
+				email: email,
+				password: hash,
+			});
+			res
+				.status(200)
+				.json({ message: "success create data", data: userCreate });
+		});
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: error });
