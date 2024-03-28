@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize({
+const connection = new Sequelize({
 	dialect: "mysql",
 	host: process.env.HOST,
 	username: process.env.USERDB,
@@ -8,4 +8,4 @@ const sequelize = new Sequelize({
 	database: process.env.DATABASE,
 	port: 3306,
 });
-export default sequelize;
+export default connection;

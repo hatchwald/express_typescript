@@ -1,7 +1,7 @@
 import express, { Request, Response, Application } from "express";
 import dotenv from "dotenv";
 dotenv.config();
-import sequelize from "./config/database";
+import connection from "./config/database";
 import cors from "cors";
 import auth from "./routes/auth";
 import bodyParser from "body-parser";
@@ -16,7 +16,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 app.use("/auth", auth);
 
-sequelize
+connection
 	.sync()
 	.then(() => {
 		console.log("Database syncronized!");
