@@ -4,6 +4,7 @@ dotenv.config();
 import connection from "./config/database";
 import cors from "cors";
 import auth from "./routes/auth";
+import api from "./routes/api/index";
 import bodyParser from "body-parser";
 
 const app: Application = express();
@@ -15,6 +16,7 @@ app.get("/", (req: Request, res: Response) => {
 	res.send("welcome express typescript");
 });
 app.use("/auth", auth);
+app.use("/api", api);
 
 connection
 	.sync()
