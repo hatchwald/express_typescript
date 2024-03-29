@@ -54,6 +54,7 @@ router.post("/", async function (req: Request, res: Response) {
 	}
 });
 
+// update book
 router.put("/:bookId", async function (req: Request, res: Response) {
 	const { title, synopsis, author, thumbnail } = req.body;
 	const requiredField = ["title", "synopsis", "author"];
@@ -87,6 +88,27 @@ router.put("/:bookId", async function (req: Request, res: Response) {
 		return res
 			.status(200)
 			.json({ message: "Success Update book", data: bookUpdate });
+	} catch (error) {
+		return res.status(500).json({ error: error });
+	}
+});
+
+// delete book
+router.delete("/:bookId", async function (req: Request, res: Response) {
+	try {
+		const params = req.params;
+		const bookid = params.bookId;
+		const book = await Book.findByPk(bookid);
+		if (book == null) {
+			return res.status(404).json({ message: "Book Data not found !" });
+		}
+
+		await Book.destroy({
+			where: {
+				id: bookid,
+			},
+		});
+		return res.status(200).json({ message: "Success Delete Book" });
 	} catch (error) {
 		return res.status(500).json({ error: error });
 	}
