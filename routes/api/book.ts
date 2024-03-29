@@ -7,6 +7,15 @@ router.get("/", async function (req: Request, res: Response) {
 	const book = await Book.findAll();
 	return res.status(200).json({ message: "book Data", data: book });
 });
+router.get("/:bookId", async function (req: Request, res: Response) {
+	const params = req.params;
+	const bookid = params.bookId;
+	const book = await Book.findByPk(bookid);
+	if (book == null) {
+		return res.status(404).json({ message: "Book Data not found !" });
+	}
+	return res.status(200).json({ message: "Book Data", data: book });
+});
 
 router.post("/", async function (req: Request, res: Response) {
 	const { title, synopsis, author, thumbnail } = req.body;
