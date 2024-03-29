@@ -1,5 +1,19 @@
 import express, { Request, Response, NextFunction } from "express";
 import Book from "../../models/book";
+import fs from "fs/promises";
+import path from "path";
+import multer from "multer";
+
+// setup multer storage
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "uploads/");
+	},
+	filename: function (req, file, cb) {
+		cb(null, Date.now() + "-" + file.originalname);
+	},
+});
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 
@@ -21,77 +35,81 @@ router.get("/:bookId", async function (req: Request, res: Response) {
 });
 
 // create book
-router.post("/", async function (req: Request, res: Response) {
-	const { title, synopsis, author, thumbnail } = req.body;
-	const requiredField = ["title", "synopsis", "author"];
-	try {
-		requiredField.forEach((field) => {
-			if (!req.body[field]) {
-				const responseError = {
-					type: "Error",
-					message: `${field} cannot be empty!`,
-					code: 400,
-				};
-				let error = new Error();
-				error = { ...error, ...responseError };
-				throw error;
+router.post(
+	"/",
+	upload.single("thumbnail"),
+	async function (req: Request, res: Response) {
+		const { title, synopsis, author, thumbnail } = req.body;
+		const requiredField = ["title", "synopsis", "author"];
+		try {
+			requiredField.forEach((field) => {
+				if (!req.body[field]) {
+					const responseError = {
+						type: "Error",
+						message: `${field} cannot be empty!`,
+						code: 400,
+					};
+					console.log(req.file?.filename);
+					let error = new Error();
+					error = { ...error, ...responseError };
+					throw error;
+				}
+			});
+
+			// doing insert
+			let thumbnailName = "";
+			if (req.file) {
+				thumbnailName = `uploads/${req.file?.filename}`;
 			}
-		});
-
-		// doing insert
-		const bookCreate = await Book.create({
-			title: title,
-			synopsis: synopsis,
-			author: author,
-			available: true,
-		});
-
-		return res
-			.status(201)
-			.json({ message: "success create book", data: bookCreate });
-	} catch (error) {
-		return res.status(500).json({ error: error });
-	}
-});
-
-// update book
-router.put("/:bookId", async function (req: Request, res: Response) {
-	const { title, synopsis, author, thumbnail } = req.body;
-	const requiredField = ["title", "synopsis", "author"];
-	try {
-		requiredField.forEach((field) => {
-			if (!req.body[field]) {
-				const responseError = {
-					type: "Error",
-					message: `${field} cannot be empty!`,
-					code: 400,
-				};
-				let error = new Error();
-				error = { ...error, ...responseError };
-				throw error;
-			}
-		});
-		const params = req.params;
-		const bookid = params.bookId;
-		const book = await Book.findByPk(bookid);
-		if (book == null) {
-			return res.status(404).json({ message: "Book Data not found !" });
-		}
-		const bookUpdate = await Book.update(
-			{
+			const bookCreate = await Book.create({
 				title: title,
 				synopsis: synopsis,
 				author: author,
-			},
-			{ where: { id: bookid } }
-		);
-		return res
-			.status(200)
-			.json({ message: "Success Update book", data: bookUpdate });
-	} catch (error) {
-		return res.status(500).json({ error: error });
+				available: true,
+				thumbnail: thumbnailName,
+			});
+
+			return res
+				.status(201)
+				.json({ message: "success create book", data: bookCreate });
+		} catch (error) {
+			return res.status(500).json({ error: error });
+		}
 	}
-});
+);
+
+// update book
+router.put(
+	"/:bookId",
+	upload.single("thumbnail"),
+	async function (req: Request, res: Response) {
+		const { title, synopsis, author, thumbnail } = req.body;
+
+		try {
+			const params = req.params;
+			const bookid = params.bookId;
+			const book = await Book.findByPk(bookid);
+			if (book == null) {
+				return res.status(404).json({ message: "Book Data not found !" });
+			}
+			let thumbnailName = "";
+			if (req.file) {
+				thumbnailName = `uploads/${req.file?.filename}`;
+			}
+			book.title = title || book.title;
+			book.synopsis = synopsis || book.synopsis;
+			book.author = author || book.author;
+			book.thumbnail = thumbnailName || book.thumbnail;
+			await book.save();
+
+			return res
+				.status(200)
+				.json({ message: "Success Update book", data: book });
+		} catch (error) {
+			return res.status(500).json({ error: error });
+		}
+	}
+);
 
 // delete book
 router.delete("/:bookId", async function (req: Request, res: Response) {
