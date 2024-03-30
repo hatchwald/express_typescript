@@ -31,7 +31,7 @@ User.init(
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.BIGINT,
+			type: DataTypes.INTEGER,
 		},
 		firstName: {
 			type: DataTypes.STRING,

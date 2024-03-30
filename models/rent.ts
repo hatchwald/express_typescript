@@ -1,4 +1,10 @@
-import { DataTypes, EnumDataType, Model, Optional } from "sequelize";
+import {
+	DataTypes,
+	EnumDataType,
+	ForeignKey,
+	Model,
+	Optional,
+} from "sequelize";
 import connection from "../config/database";
 import User from "./user";
 import Book from "./book";
@@ -9,7 +15,7 @@ interface RentAttribute {
 	bookId?: number;
 	rent_at?: Date;
 	return_date?: Date;
-	status?: EnumDataType<string>;
+	status?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 }
@@ -20,10 +26,10 @@ export interface RentOutput extends Required<RentAttribute> {}
 class Rent extends Model<RentAttribute, RentInput> implements RentAttribute {
 	public id!: number;
 	public userId!: number;
-	public bookId!: number;
+	declare bookId: ForeignKey<Book["id"]>;
 	public rent_at!: Date;
 	public return_date!: Date;
-	public status!: EnumDataType<string>;
+	public status!: string;
 
 	public readonly createdAt!: Date;
 	public readonly updatedAt!: Date;
@@ -35,7 +41,7 @@ Rent.init(
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.BIGINT,
+			type: DataTypes.INTEGER,
 		},
 		bookId: {
 			type: DataTypes.INTEGER,
@@ -63,7 +69,6 @@ Rent.init(
 	{
 		timestamps: true,
 		sequelize: connection,
-		modelName: "Rent",
 	}
 );
 

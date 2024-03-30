@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import profile from "./profile";
 import book from "./book";
+import rent from "./rent";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -26,6 +27,7 @@ router.all("/*", (req: Request, res: Response, next: NextFunction) => {
 
 router.use("/profile", profile);
 router.use("/book", book);
+router.use("/rent", rent);
 router.get("/", (req: Request, res: Response, next: NextFunction) => {
 	res.status(200).json({ message: "this is api" });
 });
