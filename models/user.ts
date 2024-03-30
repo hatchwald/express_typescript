@@ -49,6 +49,11 @@ User.init(
 	{
 		timestamps: true,
 		sequelize: connection,
+		defaultScope: {
+			attributes: {
+				exclude: ["password"],
+			},
+		},
 	}
 );
 
