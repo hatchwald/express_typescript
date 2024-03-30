@@ -3,6 +3,7 @@ import Book from "../../models/book";
 import User from "../../models/user";
 import Rent from "../../models/rent";
 import connection from "../../config/database";
+import { isBefore } from "date-fns";
 
 const router = express.Router();
 
@@ -53,6 +54,13 @@ router.post("/", async function (req: Request, res: Response) {
 		const user = await User.findByPk(userId);
 		if (!user) {
 			return res.status(404).json({ message: "User Not Found" });
+		}
+
+		// validate return date
+		if (isBefore(return_date, new Date())) {
+			return res
+				.status(400)
+				.json({ message: "The returned date cannot less than today" });
 		}
 		const rent = await Rent.create(
 			{
