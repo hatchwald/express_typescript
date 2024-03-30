@@ -75,4 +75,35 @@ router.post("/", async function (req: Request, res: Response) {
 		return res.status(500).json({ error: error });
 	}
 });
+
+router.put("/:id/return", async function (req: Request, res: Response) {
+	const { bookId, userId } = req.body;
+	const t = await connection.transaction();
+	const params = req.params;
+	const id = params.id;
+	try {
+		const rent = await Rent.findByPk(id);
+		if (!rent) {
+			return res.status(404).json({ message: "Data Book Rented is not found" });
+		}
+
+		if (rent.status === "returned") {
+			return res
+				.status(400)
+				.json({ message: "Data Book Rented already returned !" });
+		}
+
+		rent.status = "returned";
+		await rent.save({ transaction: t });
+		const book = await Book.findByPk(rent.bookId);
+		book!.available = true;
+		await book?.save({ transaction: t });
+		await t.commit();
+		return res.status(200).json({ message: "Data Book Rented is updated" });
+	} catch (error) {
+		console.error(error);
+		await t.rollback();
+		return res.status(500).json({ error: error });
+	}
+});
 export default router;
