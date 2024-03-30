@@ -10,6 +10,6 @@
 - install depedencies from `package.json` using `npm install`
 - create empty database
 - run `npx sequelize-cli db:migrate` to migrate database
-- to run this you can check the `package.json`, you can use `npm run dev`
+- to run this you can check the `package.json`, you can use `npm run dev` or `npm run prod`
 - the default port is on `.env` is on port 2727
 - the base url will be on [http://localhost:2727](http://localhost:2727)
