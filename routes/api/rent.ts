@@ -3,7 +3,7 @@ import Book from "../../models/book";
 import User from "../../models/user";
 import Rent from "../../models/rent";
 import connection from "../../config/database";
-import { isBefore } from "date-fns";
+import { isBefore, isValid } from "date-fns";
 
 const router = express.Router();
 
@@ -76,11 +76,11 @@ router.post("/", async function (req: Request, res: Response) {
 		await book.save({ transaction: t });
 		await t.commit();
 		return res.status(200).json({ message: "Rent Success", data: rent });
-	} catch (error) {
-		console.error(error);
+	} catch (error: any) {
+		console.error(error.message);
 
 		await t.rollback();
-		return res.status(500).json({ error: error });
+		return res.status(500).json({ error: error.message });
 	}
 });
 

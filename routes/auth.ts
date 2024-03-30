@@ -79,7 +79,16 @@ router.post("/register", async function (req: Request, res: Response) {
 				throw error;
 			}
 		});
-
+		const validateEmail = (email: string) => {
+			return String(email)
+				.toLowerCase()
+				.match(
+					/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+				);
+		};
+		if (!validateEmail(email)) {
+			return res.status(400).json({ message: "Email is not valid" });
+		}
 		const user = await User.findAll({ where: { email: email } });
 		if (user.length > 0) {
 			return res.status(400).json({ message: "email already exist" });

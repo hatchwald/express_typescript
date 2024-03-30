@@ -25,13 +25,17 @@ router.get("/", async function (req: Request, res: Response) {
 
 // show detail book
 router.get("/:bookId", async function (req: Request, res: Response) {
-	const params = req.params;
-	const bookid = params.bookId;
-	const book = await Book.findByPk(bookid);
-	if (book == null) {
-		return res.status(404).json({ message: "Book Data not found !" });
+	try {
+		const params = req.params;
+		const bookid = params.bookId;
+		const book = await Book.findByPk(bookid);
+		if (book == null) {
+			return res.status(404).json({ message: "Book Data not found !" });
+		}
+		return res.status(200).json({ message: "Book Data", data: book });
+	} catch (error: any) {
+		return res.status(400).json({ error: error.message });
 	}
-	return res.status(200).json({ message: "Book Data", data: book });
 });
 
 // create book

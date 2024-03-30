@@ -6,6 +6,6 @@ const connection = new Sequelize({
 	username: process.env.USERDB,
 	password: process.env.PASSWORD,
 	database: process.env.DATABASE,
-	port: 3306,
+	port: process.env.DB_PORT as unknown as number | 3306,
 });
 export default connection;
